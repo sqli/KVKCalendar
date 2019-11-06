@@ -278,29 +278,30 @@ final class TimelineView: UIView {
                 timer?.invalidate()
                 timer = nil
             }
-            timer = Timer(fire: nextMinute, interval: 60, repeats: true) { [unowned self] _ in
-                guard let time = self.getTimelineLabel(hour: date.hour) else { return }
+            timer = Timer(fire: nextMinute, interval: 60, repeats: true) { [weak self] _ in
+                guard let weakSelf = self else { return }
+                guard let time = weakSelf.getTimelineLabel(hour: date.hour) else { return }
                 
                 var pointY = time.frame.origin.y
-                if !self.subviews.filter({ $0 is AllDayTitleView }).isEmpty {
-                    if self.style.allDayStyle.isPinned {
-                        pointY -= self.style.allDayStyle.height
+                if !weakSelf.subviews.filter({ $0 is AllDayTitleView }).isEmpty {
+                    if weakSelf.style.allDayStyle.isPinned {
+                        pointY -= weakSelf.style.allDayStyle.height
                     }
                 }
                 
-                pointY = self.calculatePointYByMinute(date.minute, time: time)
+                pointY = weakSelf.calculatePointYByMinute(date.minute, time: time)
                 
-                self.currentTimeLabel.frame.origin.y = pointY - 5
-                self.currentLineView.frame.origin.y = pointY
+                weakSelf.currentTimeLabel.frame.origin.y = pointY - 5
+                weakSelf.currentLineView.frame.origin.y = pointY
                 
                 let formatter = DateFormatter()
-                formatter.dateFormat = self.timeHourSystem == .twentyFourHour ? "HH:mm" : "H:mm a"
-                self.currentTimeLabel.text = formatter.string(from: date)
+                formatter.dateFormat = weakSelf.timeHourSystem == .twentyFourHour ? "HH:mm" : "H:mm a"
+                weakSelf.currentTimeLabel.text = formatter.string(from: date)
                 
-                if let timeNext = self.getTimelineLabel(hour: date.hour + 1) {
-                    timeNext.isHidden = self.currentTimeLabel.frame.intersects(timeNext.frame)
+                if let timeNext = weakSelf.getTimelineLabel(hour: date.hour + 1) {
+                    timeNext.isHidden = weakSelf.currentTimeLabel.frame.intersects(timeNext.frame)
                 }
-                time.isHidden = time.frame.intersects(self.currentTimeLabel.frame)
+                time.isHidden = time.frame.intersects(weakSelf.currentTimeLabel.frame)
             }
             
             guard let timer = timer else { return }
